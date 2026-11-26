@@ -271,13 +271,17 @@ def health_check():
 
 
 @app.post("/webhook/telegram")
-async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
+async def telegram_webhook(request: Request):
     """
     Webhook público al que Telegram envía las actualizaciones.
-    Se procesa en background para responderle 200 OK a Telegram de inmediato.
+    En Vercel Serverless se procesa sincrónicamente para garantizar que la respuesta
+    se envíe a Telegram antes de que el micro-contenedor se pause.
     """
-    update = await request.json()
-    background_tasks.add_task(telegram_service.handle_webhook_update, update)
+    try:
+        update = await request.json()
+        await telegram_service.handle_webhook_update(update)
+    except Exception as e:
+        print(f"[Telegram Webhook Error]: {e}")
     return {"ok": True}
 
 

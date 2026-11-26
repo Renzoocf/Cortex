@@ -87,16 +87,26 @@ class TelegramService:
             print(f"[Telegram] Error enviando chat action: {e}")
 
     async def send_message(self, chat_id: int, text: str, parse_mode: str = "Markdown"):
-        """Envía un mensaje de texto formateado al usuario"""
-        await self.http_client.post(
-            f"{self.base_url}/sendMessage",
-            json={
-                "chat_id": chat_id,
-                "text": text,
-                "parse_mode": parse_mode
-            },
-            timeout=10.0
-        )
+        """Envía un mensaje de texto formateado al usuario con fallback seguro a texto plano"""
+        try:
+            res = await self.http_client.post(
+                f"{self.base_url}/sendMessage",
+                json={
+                    "chat_id": chat_id,
+                    "text": text,
+                    "parse_mode": parse_mode
+                },
+                timeout=10.0
+            )
+            if not res.is_success:
+                # Si falló por formato de caracteres Markdown, reintentar en texto plano
+                await self.http_client.post(
+                    f"{self.base_url}/sendMessage",
+                    json={"chat_id": chat_id, "text": text},
+                    timeout=10.0
+                )
+        except Exception as e:
+            print(f"[Telegram] Error enviando mensaje a chat {chat_id}: {e}")
 
     async def download_file_bytes(self, file_id: str) -> bytes:
         """Obtiene la ruta del archivo en Telegram y descarga sus bytes"""
