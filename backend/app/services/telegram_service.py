@@ -178,12 +178,74 @@ class TelegramService:
         evaluation: Optional[GeminiStructuredEvaluation] = None
 
         try:
-            # Caso 0: Comandos rápidos (/resumen, /domingo)
-            if "text" in message and message["text"].strip().lower() in ("/resumen", "/domingo"):
-                ideas = await asyncio.to_thread(supabase_service.list_all_ideas)
-                digest = digest_service.build_weekly_digest(ideas)
-                await self.send_message(chat_id, digest["markdown_text"])
-                return
+            # Caso 0: Comandos de control del bot (/start, /help, /foco, /stats, /resumen)
+            if "text" in message:
+                cleaned_cmd = message["text"].strip().lower()
+
+                # /start o /help
+                if cleaned_cmd in ("/start", "/help", "hola", "/hola"):
+                    welcome_text = (
+                        "👋 *¡Hola! Bienvenido a Córtex Filtro.*\n\n"
+                        "Soy tu segundo cerebro con IA para filtrar ideas y descartar humo antes de programar.\n\n"
+                        "💡 *¿Cómo capturar ideas conmigo?*\n"
+                        "• 🎙️ *Audio / Voz:* Grábame una nota de voz con una idea o dolor.\n"
+                        "• 🔗 *Enlace:* Pega un link de TikTok, Shorts, Reels o X.\n"
+                        "• 📸 *Foto:* Sube una captura de una queja o reseña.\n"
+                        "• 💬 *Texto:* Escribe cualquier pensamiento rápido.\n\n"
+                        "📋 *Comandos del Bot:*\n"
+                        "/foco - Ver tus 2 proyectos en foco activo\n"
+                        "/stats - Estadísticas de tu bóveda\n"
+                        "/resumen - Resumen semanal para Obsidian"
+                    )
+                    await self.send_message(chat_id, welcome_text)
+                    return
+
+                # /foco
+                if cleaned_cmd in ("/foco", "/focus"):
+                    ideas = await asyncio.to_thread(supabase_service.list_all_ideas)
+                    focused = [i for i in ideas if str(i.get("status", "")).lower() in ("en_foco", "en foco")]
+                    if not focused:
+                        await self.send_message(
+                            chat_id,
+                            "⚡ *En Foco Activo:* No tienes proyectos en foco actualmente.\n"
+                            "Promueve una idea desde tu Dashboard para activar la ventana de validación de 48h."
+                        )
+                    else:
+                        lines = ["⚡ *TUS PROYECTOS EN FOCO ACTIVO (MÁX. 2):*\n"]
+                        for idx, p in enumerate(focused[:2], 1):
+                            title = p.get("title", "Sin título")
+                            score = float(p.get("score") or 8.0)
+                            lines.append(f"*Slot {idx}:* {title} (⭐ {score:.1f}/10)")
+                        lines.append("\n_Recuerda la regla: máximo 2 frentes activos simultáneamente._")
+                        await self.send_message(chat_id, "\n".join(lines))
+                    return
+
+                # /stats
+                if cleaned_cmd in ("/stats", "/estadisticas"):
+                    ideas = await asyncio.to_thread(supabase_service.list_all_ideas)
+                    total = len(ideas)
+                    foco = sum(1 for i in ideas if str(i.get("status", "")).lower() in ("en_foco", "en foco"))
+                    freezer = sum(1 for i in ideas if str(i.get("status", "")).lower() in ("congelador",))
+                    discarded = sum(1 for i in ideas if str(i.get("status", "")).lower() in ("descartado",))
+                    launched = sum(1 for i in ideas if str(i.get("status", "")).lower() in ("lanzado",))
+                    stats_msg = (
+                        "📊 *ESTADO DE TU BÓVEDA CORTEXFILTRO:*\n\n"
+                        f"• Total procesadas: *{total}*\n"
+                        f"• ⚡ En Foco: *{foco} / 2*\n"
+                        f"• ❄️ Congelador Técnico: *{freezer}*\n"
+                        f"• 🚀 Lanzados / Validados: *{launched}*\n"
+                        f"• 🗑️ Descartados por Humo: *{discarded}*\n\n"
+                        "🔗 _Consulta tu panel en vivo en tu navegador._"
+                    )
+                    await self.send_message(chat_id, stats_msg)
+                    return
+
+                # /resumen o /domingo
+                if cleaned_cmd in ("/resumen", "/domingo"):
+                    ideas = await asyncio.to_thread(supabase_service.list_all_ideas)
+                    digest = digest_service.build_weekly_digest(ideas)
+                    await self.send_message(chat_id, digest["markdown_text"])
+                    return
 
             # Caso 1: Mensaje de Texto o Enlace (TikTok, Reels, YouTube, X)
             if "text" in message:

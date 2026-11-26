@@ -25,6 +25,40 @@ class GeminiService:
             self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
         return self._client
 
+    async def _generate_with_fallback(
+        self,
+        contents,
+        config: types.GenerateContentConfig
+    ):
+        """
+        Genera contenido con reintento automático y fallback de modelos
+        en caso de que Google reporte 503 UNAVAILABLE (alta demanda) o 429.
+        """
+        preferred = settings.GEMINI_MODEL or "gemini-3.5-flash-lite"
+        # Priorizar gemini-3.5-flash-lite por su alta disponibilidad y velocidad
+        fallback_models = [preferred, "gemini-3.5-flash-lite", "gemini-3.5-flash"]
+        unique_models = list(dict.fromkeys(fallback_models))
+
+        last_error = None
+        for model_name in unique_models:
+            try:
+                response = await asyncio.to_thread(
+                    self.client.models.generate_content,
+                    model=model_name,
+                    contents=contents,
+                    config=config
+                )
+                return response
+            except Exception as e:
+                last_error = e
+                err_str = str(e)
+                # Si es 503 (alta demanda) o 429 (límite de cuota temporal), probar el siguiente modelo
+                if any(x in err_str for x in ("503", "429", "UNAVAILABLE", "ResourceExhausted")):
+                    await asyncio.sleep(0.5)
+                    continue
+                raise e
+        raise last_error
+
     async def evaluate_text_input(
         self,
         raw_text: str,
@@ -37,16 +71,16 @@ class GeminiService:
         if extra_context:
             user_prompt += f"\n\nContexto adicional provisto:\n{extra_context}"
 
-        response = await asyncio.to_thread(
-            self.client.models.generate_content,
-            model=settings.GEMINI_MODEL,
+        config = types.GenerateContentConfig(
+            system_instruction=SYSTEM_EVALUATOR_PROMPT,
+            response_mime_type="application/json",
+            response_schema=GeminiStructuredEvaluation,
+            temperature=0.2, # Baja temperatura para análisis frío y analítico
+        )
+
+        response = await self._generate_with_fallback(
             contents=user_prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_EVALUATOR_PROMPT,
-                response_mime_type="application/json",
-                response_schema=GeminiStructuredEvaluation,
-                temperature=0.2, # Baja temperatura para análisis frío y analítico
-            )
+            config=config
         )
 
         return GeminiStructuredEvaluation.model_validate_json(response.text)
@@ -82,16 +116,16 @@ class GeminiService:
             mime_type=mime_type
         )
 
-        response = await asyncio.to_thread(
-            self.client.models.generate_content,
-            model=settings.GEMINI_MODEL,
+        config = types.GenerateContentConfig(
+            system_instruction=SYSTEM_EVALUATOR_PROMPT,
+            response_mime_type="application/json",
+            response_schema=GeminiStructuredEvaluation,
+            temperature=0.2,
+        )
+
+        response = await self._generate_with_fallback(
             contents=[media_part, user_prompt],
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_EVALUATOR_PROMPT,
-                response_mime_type="application/json",
-                response_schema=GeminiStructuredEvaluation,
-                temperature=0.2,
-            )
+            config=config
         )
 
         return GeminiStructuredEvaluation.model_validate_json(response.text)
