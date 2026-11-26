@@ -271,9 +271,15 @@ export const PixelMatrix: React.FC<PixelMatrixProps> = React.memo(({ ideas }) =>
       </div>
 
       {/* Lienzo Interactivo de Matriz de Píxeles Apilados */}
-      <div className="px-5 pb-5 pt-3 overflow-x-auto">
-        <div className="min-w-[680px]">
-          <div className="relative flex items-stretch gap-3">
+      <div className="px-3 sm:px-5 pb-5 pt-2">
+        <div className="flex sm:hidden justify-end mb-1">
+          <span className="text-[10.5px] font-medium text-inkFaint flex items-center gap-1">
+            <span>← Desliza para explorar meses →</span>
+          </span>
+        </div>
+        <div className="overflow-x-auto pb-2 scrollbar-thin">
+          <div className="min-w-[640px]">
+            <div className="relative flex items-stretch gap-3">
             {/* Eje Y izquierdo */}
             <div className="flex flex-col justify-between py-1 font-mono text-[10.5px] tabular-nums text-inkFaint select-none">
               <span className="flex items-center gap-1.5">18 <span className="h-1 w-1 rounded-full bg-gray-300"></span></span>
@@ -359,6 +365,7 @@ export const PixelMatrix: React.FC<PixelMatrixProps> = React.memo(({ ideas }) =>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
   );
 });

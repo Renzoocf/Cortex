@@ -51,12 +51,12 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
       <aside
         id="leftSidebar"
         aria-label="Navegación principal"
-        className={`fixed inset-y-0 left-0 z-50 flex w-[240px] shrink-0 flex-col justify-between border-r border-borderHairline bg-sidebarBg px-3.5 py-4 transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
-          isOpenMobile ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 flex w-[270px] sm:w-[240px] shrink-0 flex-col justify-between border-r border-borderHairline bg-sidebarBg px-3.5 py-4 transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+          isOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
         <div className="space-y-6 overflow-y-auto pr-0.5">
-          {/* Workspace Header Card */}
+          {/* Workspace Header Card con Botón Cerrar para móviles */}
           <div className="flex items-center justify-between rounded-xl border border-borderHairline bg-[#EAEBEB]/75 px-3 py-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-inkCharcoal text-white shadow-xs">
@@ -69,9 +69,16 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                 <span className="block truncate text-[13px] font-bold leading-tight text-inkPrimary">CortexFiltro</span>
               </div>
             </div>
-            <svg className="h-3.5 w-3.5 shrink-0 text-inkFaint" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>
-            </svg>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={onCloseMobile}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-inkMuted hover:bg-neutral-300/60 lg:hidden text-sm font-bold"
+                aria-label="Cerrar menú lateral"
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
           {/* Grupo 1: MENÚ PRINCIPAL */}

@@ -1,6 +1,7 @@
 import React, { Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { KpiCards } from './components/KpiCards';
 import { PixelMatrix } from './components/PixelMatrix';
 import { FocusProjects } from './components/FocusProjects';
@@ -797,9 +798,9 @@ export default function App() {
         />
 
         {/* Main Content (Aprovecha todo el ancho de la pantalla) */}
-        <main className="w-full flex-1 px-5 py-6 sm:px-8 xl:px-10 2xl:px-12">
+        <main className="w-full flex-1 px-3.5 py-4 pb-24 sm:px-8 sm:py-6 sm:pb-12 xl:px-10 2xl:px-12">
           {/* Buscador móvil */}
-          <div className="relative mb-5 sm:hidden">
+          <div className="relative mb-4 sm:hidden">
             <svg
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-inkFaint"
               viewBox="0 0 24 24"
@@ -820,12 +821,12 @@ export default function App() {
           </div>
 
           {/* Greeting Header */}
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-5 sm:mb-6 flex flex-wrap items-end justify-between gap-2 sm:gap-3">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-inkPrimary">
-                Bienvenido de nuevo, {currentUser.full_name}
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-inkPrimary">
+                Bienvenido, {currentUser.full_name}
               </h1>
-              <p className="mt-1 text-[13.5px] text-inkMuted">
+              <p className="mt-0.5 sm:mt-1 text-xs sm:text-[13.5px] text-inkMuted">
                 Tu embudo inteligente de ideas capturadas desde Telegram, TikTok y chats técnicos.
               </p>
             </div>
@@ -981,6 +982,16 @@ export default function App() {
           />
         )}
       </Suspense>
+
+      {/* Barra de Navegación Inferior para Móviles (Thumb-friendly) */}
+      <MobileBottomNav
+        activeView={activeView}
+        onSelectView={setActiveView}
+        onOpenSimulator={handleOpenSimulator}
+        onToggleMobileMenu={handleToggleMobile}
+        focusCount={counts.focus}
+        freezerCount={counts.freezer}
+      />
 
       {/* Toast Notifications */}
       <ToastStack toasts={toasts} />

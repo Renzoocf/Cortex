@@ -243,15 +243,15 @@ export const SimulatorModal: React.FC<SimulatorModalProps> = ({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-2 sm:p-4"
     >
-      <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-borderHairline bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)] animate-pop-in">
-        <div className="flex shrink-0 items-center justify-between border-b border-borderHairline bg-cardSubtle px-6 py-4">
+      <div className="flex max-h-[94vh] sm:max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-borderHairline bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)] animate-pop-in">
+        <div className="flex shrink-0 items-center justify-between border-b border-borderHairline bg-cardSubtle px-4 py-3 sm:px-6 sm:py-4">
           <div>
-            <h3 id="simulatorModalTitle" className="text-base font-bold text-inkPrimary">
+            <h3 id="simulatorModalTitle" className="text-[14px] sm:text-base font-bold text-inkPrimary">
               Superpoderes de Captura Telegram / Gemini IA
             </h3>
-            <p className="text-xs text-inkMuted">
+            <p className="text-[11px] sm:text-xs text-inkMuted">
               Envía un link de TikTok/X, dicta una nota de voz o captura una queja para filtrarla.
             </p>
           </div>
@@ -267,41 +267,41 @@ export const SimulatorModal: React.FC<SimulatorModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-6">
+        <form onSubmit={handleSubmit} className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
           {/* 3 Pestañas de Superpoder de Captura */}
-          <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-borderHairline bg-searchBg p-1">
+          <div className="grid grid-cols-3 gap-1 rounded-xl border border-borderHairline bg-searchBg p-1">
             <button
               type="button"
               onClick={() => handleModeChange('link')}
-              className={`rounded-lg px-2.5 py-2 text-xs font-semibold transition ${
+              className={`rounded-lg px-2 py-2 text-[11px] sm:text-xs font-semibold transition ${
                 captureMode === 'link'
                   ? 'bg-white text-inkPrimary shadow-xs'
                   : 'text-inkMuted hover:text-inkPrimary'
               }`}
             >
-              🔗 Link TikTok / X
+              🔗 Link <span className="hidden xs:inline">TikTok / X</span>
             </button>
             <button
               type="button"
               onClick={() => handleModeChange('voice')}
-              className={`rounded-lg px-2.5 py-2 text-xs font-semibold transition ${
+              className={`rounded-lg px-2 py-2 text-[11px] sm:text-xs font-semibold transition ${
                 captureMode === 'voice'
                   ? 'bg-white text-inkPrimary shadow-xs'
                   : 'text-inkMuted hover:text-inkPrimary'
               }`}
             >
-              🎙️ Nota de Voz
+              🎙️ <span className="hidden xs:inline">Nota de </span>Voz
             </button>
             <button
               type="button"
               onClick={() => handleModeChange('ocr')}
-              className={`rounded-lg px-2.5 py-2 text-xs font-semibold transition ${
+              className={`rounded-lg px-2 py-2 text-[11px] sm:text-xs font-semibold transition ${
                 captureMode === 'ocr'
                   ? 'bg-white text-inkPrimary shadow-xs'
                   : 'text-inkMuted hover:text-inkPrimary'
               }`}
             >
-              📸 Queja / OCR
+              📸 <span className="hidden xs:inline">Queja / </span>OCR
             </button>
           </div>
 

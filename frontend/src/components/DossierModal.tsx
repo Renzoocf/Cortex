@@ -150,11 +150,11 @@ export const DossierModal: React.FC<DossierModalProps> = ({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3 sm:p-5"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-2 sm:p-5"
     >
-      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-borderHairline bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)] animate-pop-in">
+      <div className="flex max-h-[94vh] sm:max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-borderHairline bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)] animate-pop-in">
         {/* Header Modal */}
-        <div className="flex items-start justify-between gap-4 border-b border-borderHairline bg-cardSubtle px-6 py-4">
+        <div className="flex items-start justify-between gap-3 border-b border-borderHairline bg-cardSubtle px-4 py-3 sm:px-6 sm:py-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-md bg-inkCharcoal px-2 py-0.5 text-[11px] font-semibold text-white">
@@ -189,7 +189,7 @@ export const DossierModal: React.FC<DossierModalProps> = ({
         </div>
 
         {/* Cuerpo Dos Columnas */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
             {/* Columna Izquierda (7 cols): Problema, Arquitectura y Veredicto IA */}
             <div className="space-y-5 lg:col-span-7">
