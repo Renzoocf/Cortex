@@ -51,6 +51,25 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def vercel_routing_middleware(request: Request, call_next):
+    """
+    En Vercel Serverless, cuando un rewrite dirige el tráfico a /api/index.py,
+    restauramos el path original desde las cabeceras inyectadas por Vercel
+    para que FastAPI reconozca las rutas como /api/ideas, /health, etc.
+    """
+    path = request.scope.get("path", "")
+    if path in ["/api/index.py", "/api/index", "/api/index/", ""]:
+        forwarded = (
+            request.headers.get("x-matched-path")
+            or request.headers.get("x-invoke-path")
+            or request.headers.get("x-forwarded-uri")
+            or "/"
+        )
+        request.scope["path"] = forwarded.split("?")[0]
+    return await call_next(request)
+
+
 def map_db_to_frontend(db_item: dict) -> dict:
     """Mapea el formato de base de datos PostgreSQL/Supabase al formato exacto de la UI."""
     status_map = {
@@ -229,6 +248,9 @@ async def clear_database_ideas():
 
 
 @app.get("/")
+@app.get("/api")
+@app.get("/api/index")
+@app.get("/api/index.py")
 def root():
     return {
         "app": "CortexFiltro API",
