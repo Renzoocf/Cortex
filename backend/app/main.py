@@ -14,11 +14,15 @@ from app.services.digest_service import digest_service
 from app.prompts.evaluator import LINK_CAPTURE_PROMPT
 
 
+import os
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # Iniciar polling en segundo plano para escuchar a Telegram en desarrollo sin necesidad de túnel
+    # En Vercel Serverless las funciones son efímeras; el polling solo corre en desarrollo local
     polling_task = None
-    if settings.TELEGRAM_BOT_TOKEN:
+    is_vercel = bool(os.environ.get("VERCEL"))
+    if settings.TELEGRAM_BOT_TOKEN and not is_vercel and settings.APP_ENV != "production":
         polling_task = asyncio.create_task(telegram_service.run_polling_loop())
 
     yield
@@ -36,11 +40,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Compresión GZip + CORS
+# Compresión GZip + CORS permisivo para Vercel y Localhost
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # En producción se restringe a la URL de Vercel
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

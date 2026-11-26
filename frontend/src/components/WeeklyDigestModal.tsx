@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Idea } from '../types';
 import { buildWeeklyDigest } from '../utils/ideaFunnel';
+import { API_BASE_URL } from '../config/api';
 
 interface WeeklyDigestModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export const WeeklyDigestModal: React.FC<WeeklyDigestModalProps> = ({
     setIsSending(true);
     setStatusNote(null);
     try {
-      const resp = await fetch('http://localhost:8000/api/digest/weekly', {
+      const resp = await fetch(`${API_BASE_URL}/api/digest/weekly`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

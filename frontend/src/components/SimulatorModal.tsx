@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NicheType } from '../types';
 import { REAL_SIM_SAMPLES } from '../data/mockData';
+import { API_BASE_URL } from '../config/api';
 
 type CaptureMode = 'link' | 'voice' | 'ocr';
 
@@ -188,7 +189,7 @@ export const SimulatorModal: React.FC<SimulatorModalProps> = ({
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 2500);
-        const resp = await fetch('http://localhost:8000/api/extract-link', {
+        const resp = await fetch(`${API_BASE_URL}/api/extract-link`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: cleanUrl }),

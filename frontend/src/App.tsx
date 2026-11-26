@@ -15,6 +15,7 @@ import {
 import { EvidenceLevel, Idea, MainView, NicheType, ToastMessage, IdeaStatus, UserProfile } from './types';
 import { generateAgentMasterPrompt } from './utils/promptBuilder';
 import { findDuplicateIdea, isColdFreezerIdea } from './utils/ideaFunnel';
+import { API_BASE_URL } from './config/api';
 
 // Modales cargados bajo demanda para acelerar el arranque del Dashboard
 const DossierModal = React.lazy(() =>
@@ -119,7 +120,7 @@ export default function App() {
     let isMounted = true;
     const fetchSupabaseIdeas = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/ideas');
+        const res = await fetch(`${API_BASE_URL}/api/ideas`);
         if (!res.ok) return;
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0 && isMounted) {
@@ -248,7 +249,7 @@ export default function App() {
 
   // Sincronización transparente de actualizaciones hacia Supabase
   const patchIdeaBackend = useCallback((id: string, updates: Record<string, any>) => {
-    fetch(`http://localhost:8000/api/ideas/${id}`, {
+    fetch(`${API_BASE_URL}/api/ideas/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
@@ -497,7 +498,7 @@ export default function App() {
 
     const cleanPath = idea.local_path.trim().replace(/^["']|["']$/g, '');
     try {
-      const resp = await fetch('http://localhost:8000/api/launcher/open', {
+      const resp = await fetch(`${API_BASE_URL}/api/launcher/open`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -626,7 +627,7 @@ export default function App() {
     // Evaluación en vivo con Gemini 3.5 Flash y guardado real en Supabase
     try {
       showToast('Enviando a Gemini 3.5 Flash y Supabase...', 'dark');
-      const resp = await fetch('http://localhost:8000/api/simulate', {
+      const resp = await fetch(`${API_BASE_URL}/api/simulate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -638,7 +639,7 @@ export default function App() {
       if (resp.ok) {
         const resJson = await resp.json();
         // Traer la lista actualizada real desde Supabase
-        const freshRes = await fetch('http://localhost:8000/api/ideas');
+        const freshRes = await fetch(`${API_BASE_URL}/api/ideas`);
         if (freshRes.ok) {
           const freshJson = await freshRes.json();
           if (freshJson.success && Array.isArray(freshJson.data)) {
@@ -658,7 +659,7 @@ export default function App() {
         return;
       }
     } catch {
-      showToast('No se pudo conectar con el backend local (http://localhost:8000). Inicia el servidor.', 'rose');
+      showToast(`No se pudo conectar con el backend (${API_BASE_URL}). Verifica tu conexión.`, 'rose');
       return;
     }
   };
@@ -666,7 +667,7 @@ export default function App() {
   // Recargar datos reales desde Supabase
   const handleResetDemo = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/ideas');
+      const res = await fetch(`${API_BASE_URL}/api/ideas`);
       if (res.ok) {
         const json = await res.json();
         setIdeas(json.data || []);
@@ -728,7 +729,7 @@ export default function App() {
   const handleClearMockData = useCallback(async () => {
     if (window.confirm('¿Deseas vaciar tu base de datos y empezar tu tablero 100% en limpio desde cero?')) {
       try {
-        await fetch('http://localhost:8000/api/ideas', { method: 'DELETE' });
+        await fetch(`${API_BASE_URL}/api/ideas`, { method: 'DELETE' });
       } catch {}
       localStorage.removeItem(STORAGE_IDEAS_KEY);
       setIdeas([]);

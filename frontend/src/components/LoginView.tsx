@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
+import { API_BASE_URL } from '../config/api';
 
 interface AuthViewProps {
   onAuthSuccess: (user: UserProfile) => void;
@@ -29,7 +30,7 @@ export const LoginView: React.FC<AuthViewProps> = ({
         ? { email, password, full_name: name, telegram_id: telegramId }
         : { email, password };
 
-      const resp = await fetch(`http://localhost:8000${endpoint}`, {
+      const resp = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
