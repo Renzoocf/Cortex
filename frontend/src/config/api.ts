@@ -1,6 +1,11 @@
 // Configuración centralizada de la URL del Backend
-// En Vercel se configura la variable de entorno: VITE_API_URL
-// Localmente toma por defecto http://localhost:8000
+// Si está en Vercel u otro dominio web, se conecta automáticamente a tu backend en Vercel
+// Si está en tu computadora local, se conecta a http://localhost:8000
+const isLocal =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
 export const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  import.meta.env.VITE_API_URL ||
+  (isLocal ? 'http://localhost:8000' : 'https://backend-gamma-eight-58.vercel.app')
 ).replace(/\/+$/, '');
